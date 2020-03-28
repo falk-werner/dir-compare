@@ -51,7 +51,7 @@ def add_segment(label, inner_radius, outer_radius, start, end, class_name=''):
 def walk(svg, node, inner_radius=100, start=0, end=100, path='', level=1):
     global max_level
     if level > max_level:
-        max_level += 1
+        max_level = level
     outer_radius = inner_radius + 50
     width = end - start
     for child in node['children']:
