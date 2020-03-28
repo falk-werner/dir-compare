@@ -6,10 +6,11 @@ import sys
 import argparse
 
 class Node:
-    def __init__(self, name):
+    def __init__(self, name, class_name=''):
         self.name = name
-        self.weight = 1
+        self.weight = 0
         self.children = []
+        self.class_name = class_name
     
     def add(self, path):
         if len(path) > 0:
@@ -17,8 +18,10 @@ class Node:
             child_name = path.pop(0)
             child = next((node for node in self.children if node.name == child_name), None)
             if child is None:
-                child = Node(child_name)
+                child = Node(child_name, self.class_name)
                 self.children.append(child)
+                if len(path) is 0:
+                    child.weight = 1
             child.add(path)
 
     def add_node(self, node):
@@ -29,12 +32,12 @@ class Node:
 class NodeEncoder(json.JSONEncoder):
     def default(self, obj):
             if (isinstance(obj, Node)):
-                return { 'name': obj.name, 'weight': obj.weight, 'children': obj.children }
+                return { 'name': obj.name, 'class': obj.class_name, 'weight': obj.weight, 'children': obj.children }
             else:
                 return json.JSONEncoder.default(self, obj)
 
 def add_files(root, name, files):
-    node = Node(name)
+    node = Node(name, name)
     for file_name in files:
         path = file_name.split(os.path.sep)
         node.add(path)
