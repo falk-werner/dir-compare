@@ -19,5 +19,25 @@ Where *left* is the initial directory and *right* the modified directory.
 
 ## Example
 
-    test/create_test_data.sh
-    ./dircmp.py -l /tmp/dir-compare/test/left -r /tmp/dir-compare/test/right
+    > test/create_test_data.sh
+    > ./dircmp.py -l /tmp/dir-compare/test/left -r /tmp/dir-compare/test/right
+    # compare /tmp/dir-compare/test/left vs. /tmp/dir-compare/test/right
+    #
+    # unchanged files: 2
+    # removed   files: 3
+    # added     files: 3
+    # changed   files: 2
+    #
+    # total     files: 10
+
+    U subdir/unchanged
+    U unchanged
+    D removed
+    D removed_subir/removed
+    D subdir/removed
+    A added
+    A added_subir/added
+    A subdir/added
+    M changed
+    M subdir/changed
+
