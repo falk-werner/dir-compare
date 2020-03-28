@@ -3,6 +3,8 @@
 This repo contains tools to compare two directories recursivly and visualise the
 results.
 
+![Example](test/example.svg)
+
 ## dircmp
 
 The script *dircmp.py* is used to compare two directories called *left* and *right*.
@@ -86,6 +88,12 @@ Takes the json output from *dircmp* and converts it into a tree structure.
 ## gensunburst
 
 Generates a sunburst chart out of a tree.
+
+### Command Line Arguments
+
+| Argument     | Type   | Description                                                         |
+| ------------ | ------ | ------------------------------------------------------------------- |
+| -i, --input  | string | Optional. Speficies the path of the input file (default: use stdin) |
 
 ### Example
 
