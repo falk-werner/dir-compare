@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>dir-compare</title>
+    <meta charset="utf-8" />
+    <style type='text/css'>
+    
+    svg > path {
+        fill: none;
+        stroke: black;
+    }
+
+    .unchanged {
+        fill: grey;
+    }
+
+    .removed {
+        fill: red;
+    }
+
+    .added {
+        fill: green;
+    }
+
+    .modified {
+        fill: blue;
+    }
+
+    </style>
+    <script type='text/javascript'>
+
+    class SVG {
+        constructor(title, description) {
+            this.title = title || "Sunburst";
+            this.description = description || "Sunburst";
+
+            this.items = [];
+            this.size = 500;
+        }
+
+        addPath(d, label, class_name) {
+            const path = '<path' +
+                ' d=\"' + d.join(' ') + '\"' +
+                ' data-label=\"' + label + '\"' +
+                ' class=\"' + class_name + '\""' +
+                "/>";
+                ;
+            this.items.push(path);
+        }
+
+        toString() {
+            let svg = '';
+            svg += '<?xml version=\"1.0\" encoding=\"UTF-8\" ?>';
+            svg += '<svg';
+            svg += ' viewBox=\"' + [-this.size, -this.size, 2 * this.size, 2 * this.size].join(' ') + '\"';
+            svg += ' xmlns=\"http://www.w3.org/2000/svg\"';
+            svg += ' version=\"1.1\"';
+            svg += '>';
+            svg += '<title>' + this.title + '</title>';
+            svg += '<desc>' + this.description + '</desc>';
+
+            for(let item of this.items) {
+                svg += item;
+            }
+            
+            svg += '</svg>';
+            return svg;
+        }
+    }
+
+    function getPoint(radius, i) {
+        const angle = (2 * Math.PI / 100) * i;
+        const x =  radius * Math.sin(angle);
+        const y = -radius * Math.cos(angle);
+        return {x, y};
+    }
+
+    function addSegment(svg, label, inner_radius, outer_radius, start, end, class_name) {
+        p1 = getPoint(inner_radius, start);
+        p2 = getPoint(outer_radius, start);
+        p3 = getPoint(outer_radius, end);
+        p4 = getPoint(inner_radius, end);
+        flip = (Math.abs(end - start) < 50) ? 0 : 1;
+        svg.addPath([
+            'M', p1.x, p1.y,
+            'L', p2.x, p2.y,
+            'A', outer_radius, outer_radius, 0, flip, 1, p3.x, p3.y,
+            'L', p4.x, p4.y,
+            'A', inner_radius, inner_radius, 0, flip, 0, p1.x, p1.y,
+            'z'], label, class_name);
+    }
+
+    let max_level = 0;
+
+    function walk(svg, node, inner_radius, start, end, path, level) {
+        if (level > max_level) {
+            max_level = level;
+        }
+
+        const outer_radius = inner_radius + 50;
+        const width = end - start;
+        for(let child of node.children) {
+            const child_width = (child.weight * width) / node.weight;
+            const child_end = start + child_width;
+            const child_path = path + '/' + child.name;
+
+            addSegment(svg, child_path, inner_radius, outer_radius, start, child_end, child['class']);
+            walk(svg, child, outer_radius, start, child_end, child_path, level + 1);
+            start = child_end;
+        }
+    }
+
+    function registerEvents() {
+        const elements = document.querySelectorAll('svg > path');
+        for(let element of elements) {
+            element.addEventListener('mouseover', (event) => {
+                const path = event.target;
+                const label = path.getAttribute('data-label');
+
+                document.getElementById('label').textContent = label;
+            })
+        }
+    }
+
+    function render(tree) {
+        let svg = new SVG();
+        max_level = 0;
+        walk(svg, tree, 50, 0, 100, '', 1);
+
+        svg.size = 50 + (max_level * 50) + 10;
+        const stage = document.getElementById('stage');
+        stage.innerHTML = svg.toString();
+
+        registerEvents();
+    }
+
+    function onFileSelected(event) {
+        if (event.target.files.length < 1)  { return; }
+
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const text = e.target.result;
+                const tree = JSON.parse(text);
+                render(tree);
+            }
+            catch (ex) {
+                console.log("error loading file: ", ex);
+            }
+        };
+
+        reader.readAsText(file);
+    }
+
+    function startup() {
+        const file_chooser = document.getElementById('file_chooser');
+        file_chooser.addEventListener('change', onFileSelected);
+    }
+
+    </script>
+</head>
+<body onload='startup();'>
+    <div style='display:flex; flex-flow:column; min-height:100vh;'>
+        <div style='flex:10%;'>
+            <input type='file' id='file_chooser' />
+            <div id='label'></div>    
+        </div>
+        <div id='stage' style='flex: 90%;'></div>
+    </div>
+</body>
+</html>
