@@ -17,7 +17,7 @@ Where *left* is the initial directory and *right* the modified directory.
 | -b, --brief     | flag   | If specified, only summary is printed (text output only) |
 | -u, --skip-sort | flag   | If specified, output is not sorted (text output only)    |
 
-## Example
+### Example
 
     > test/create_test_data.sh
     > ./dircmp.py -l /tmp/dir-compare/test/left -r /tmp/dir-compare/test/right
@@ -41,3 +41,43 @@ Where *left* is the initial directory and *right* the modified directory.
     M changed
     M subdir/changed
 
+## gentree
+
+Takes the json output from *dircmp* and converts it into a tree structure.
+
+### Command Line Arguments
+
+| Argument     | Type   | Description                                                         |
+| ------------ | ------ | ------------------------------------------------------------------- |
+| -i, --input  | string | Optional. Speficies the path of the input file (default: use stdin) |
+| -n, --name   | string | Optional. Name of the root node (default: root)                     |
+| -p, --pretty | flag   | If specified, JSON output is pretty printed                         |
+
+### Example
+
+    > test/create_test_data.sh
+    > ./dircmp.py -l /tmp/dir-compare/test/left -r /tmp/dir-compare/test/right -f json | ./gentree.py -p
+    {
+        "name": "root",
+        "weight": 15,
+        "children": [
+            {
+                "name": "unchanged",
+                "weight": 3,
+                "children": [
+                    {
+                        "name": "subdir",
+                        "weight": 2,
+                        "children": [
+                            {
+                                "name": "unchanged",
+                                "weight": 1,
+                                "children": []
+                            }
+                        ]
+                    },
+                    // ...
+                ]
+            }
+        ]
+    }
