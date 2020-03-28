@@ -1,6 +1,7 @@
 # dir-compare
 
-Compare two directories
+This repo contains tools to compare two directories recursivly and visualise the
+results.
 
 ## dircmp
 
@@ -81,3 +82,16 @@ Takes the json output from *dircmp* and converts it into a tree structure.
             }
         ]
     }
+
+## gensunburst
+
+Generates a sunburst chart out of a tree.
+
+### Example
+
+    > test/create_test_data.sh
+    > ./dircmp.py -l /tmp/dir-compare/test/left -r /tmp/dir-compare/test/right -f json > changes.json
+    > ./gentree.py -i changes.json > tree.json
+    > ./gensunburst.py -i tree.json > changes.svg
+
+![Changes (Sunburst)](test/changes.svg)
